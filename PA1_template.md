@@ -118,7 +118,80 @@ The interval **835** has the maximum numbers of steps **206.1698113**
 
 ## Imputing missing values
 
+### Total number of missing values in the dataset
 
+```r
+number_of_missing_values <- sum(!complete.cases(dataset))
+```
+
+There are **2304** missing values in the dataset.
+
+### Imputing strategy
+
+Missing values are replaced by the mean of steps for the corresponding intervals
+
+
+```r
+imputed_dataset <- dataset %>% group_by(interval) %>% mutate(steps=ifelse(is.na(steps), mean(steps, na.rm = TRUE), steps))
+
+print(head(imputed_dataset))
+```
+
+```
+## # A tibble: 6 x 3
+## # Groups:   interval [6]
+##    steps date       interval
+##    <dbl> <date>        <dbl>
+## 1 1.72   2012-10-01        0
+## 2 0.340  2012-10-01        5
+## 3 0.132  2012-10-01       10
+## 4 0.151  2012-10-01       15
+## 5 0.0755 2012-10-01       20
+## 6 2.09   2012-10-01       25
+```
+
+
+
+### Histogram of the total number of steps taken each day
+
+
+```r
+imputed_total_steps_per_day <- imputed_dataset %>%
+  as_tibble %>%
+  group_by(date) %>%
+  summarize(total_steps = sum(steps, na.rm = TRUE))
+
+histogram(~ total_steps, data = imputed_total_steps_per_day, xlab = "Total Steps",
+          main = "Histogram of the total numbers of steps taken each day")
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
+
+```r
+imputed_mean <- mean(imputed_total_steps_per_day$total_steps)
+imputed_median <- median(imputed_total_steps_per_day$total_steps)
+```
+
+The mean of of the total number of steps for the imputed dataset is **1.0766189\times 10^{4}**
+
+The median of of the total number of steps for the imputed dataset is **1.0766189\times 10^{4}**
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
+
+```r
+week_dataset <- imputed_dataset %>%
+  mutate(weekday <- as.POSIXlt(date)$wdat)
+
+print(head(week_dataset))
+```
+
+```
+##       steps       date interval
+## 1 1.7169811 2012-10-01        0
+## 2 0.3396226 2012-10-01        5
+## 3 0.1320755 2012-10-01       10
+## 4 0.1509434 2012-10-01       15
+## 5 0.0754717 2012-10-01       20
+## 6 2.0943396 2012-10-01       25
+```

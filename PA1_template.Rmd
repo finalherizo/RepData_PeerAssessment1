@@ -88,7 +88,55 @@ The interval **`r interval_for_max_steps`** has the maximum numbers of steps **`
 
 ## Imputing missing values
 
+### Total number of missing values in the dataset
+```{r}
+number_of_missing_values <- sum(!complete.cases(dataset))
+```
 
+There are **`r number_of_missing_values`** missing values in the dataset.
+
+### Imputing strategy
+
+Missing values are replaced by the mean of steps for the corresponding intervals
+
+```{r}
+imputed_dataset <- dataset %>% group_by(interval) %>% mutate(steps=ifelse(is.na(steps), mean(steps, na.rm = TRUE), steps))
+
+print(head(imputed_dataset))
+```
+
+```{r include=FALSE}
+imputed_dataset <- dataset
+imputed_dataset$steps <- ave(imputed_dataset$steps, imputed_dataset$interval, FUN = function(x) {ifelse(is.na(x), mean(x, na.rm = TRUE), x)})
+
+print(head(imputed_dataset))
+```
+
+### Histogram of the total number of steps taken each day
+
+```{r message=FALSE}
+imputed_total_steps_per_day <- imputed_dataset %>%
+  as_tibble %>%
+  group_by(date) %>%
+  summarize(total_steps = sum(steps, na.rm = TRUE))
+
+histogram(~ total_steps, data = imputed_total_steps_per_day, xlab = "Total Steps",
+          main = "Histogram of the total numbers of steps taken each day")
+
+imputed_mean <- mean(imputed_total_steps_per_day$total_steps)
+imputed_median <- median(imputed_total_steps_per_day$total_steps)
+
+```
+
+The mean of of the total number of steps for the imputed dataset is **`r imputed_mean`**
+
+The median of of the total number of steps for the imputed dataset is **`r imputed_median`**
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
+```{r}
+week_dataset <- imputed_dataset %>%
+  mutate(weekday <- as.POSIXlt(date)$wdat)
+
+print(head(week_dataset))
+```

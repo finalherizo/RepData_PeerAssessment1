@@ -65,7 +65,9 @@ print(head(total_steps_per_day))
 ```r
 library(lattice)
 
-histogram(~ total_steps, data = total_steps_per_day, xlab = "Total Steps",
+histogram(~ total_steps, data = total_steps_per_day, 
+          breaks = 20,
+          xlab = "Total Steps",
           main = "Histogram of the total numbers of steps taken each day")
 ```
 
@@ -161,7 +163,9 @@ imputed_total_steps_per_day <- imputed_dataset %>%
   group_by(date) %>%
   summarize(total_steps = sum(steps, na.rm = TRUE))
 
-histogram(~ total_steps, data = imputed_total_steps_per_day, xlab = "Total Steps",
+histogram(~ total_steps, data = imputed_total_steps_per_day,
+          breaks = 20,
+          xlab = "Total Steps",
           main = "Histogram of the total numbers of steps taken each day")
 ```
 

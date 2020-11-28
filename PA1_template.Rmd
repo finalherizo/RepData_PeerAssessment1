@@ -134,9 +134,23 @@ The median of of the total number of steps for the imputed dataset is **`r imput
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-```{r}
-week_dataset <- imputed_dataset %>%
-  mutate(weekday <- as.POSIXlt(date)$wdat)
+### Factor variable telling if a date is a weekend or weekday
 
-print(head(week_dataset))
+```{r}
+weekday_dataset <- imputed_dataset %>%
+  mutate(weekday = ifelse(as.POSIXlt(date)$wday %in% c(0, 5), "weekend", "weekday"))
+
+print(head(weekday_dataset))
+```
+
+### Time series plot for week days and week ends
+```{r message = FALSE}
+averaged_weekday_steps <- weekday_dataset %>%
+  group_by(weekday, interval) %>%
+  summarize(average_steps = mean(steps))
+
+xyplot(average_steps ~ interval | weekday, type = "l", data = averaged_weekday_steps,
+       xlab = "Interval",
+       ylab = "Average steps",
+       layout = c(1, 2))
 ```
